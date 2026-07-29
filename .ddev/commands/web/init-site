@@ -1,0 +1,28 @@
+#!/bin/bash
+
+## Description: Install Composer deps and the Drupal site (drush site:install)
+## Usage: init-site
+## Example: "ddev init-site"
+
+set -e
+
+cd /var/www/html
+
+if [ -f composer.lock ]; then
+  echo "Installing Composer dependencies from lock..."
+  composer install
+else
+  echo "No composer.lock found — resolving dependencies (first run)..."
+  composer update -W
+fi
+
+echo "Installing Drupal (standard profile)..."
+drush site:install standard \
+  --site-name="Pantheon Headless Drupal + NextJS Demo" \
+  --account-name=admin \
+  --yes
+# No --account-pass: drush generates a random uid-1 password. Log in with `ddev show-links`
+# (or `drush user:login`), which issues a one-time login link.
+
+echo "Rebuilding caches..."
+drush cache:rebuild

@@ -1,0 +1,6 @@
+# Project drush configuration.
+#
+# In this decoupled variant the Drupal backend is its OWN DDEV project and is
+# served at the primary URL, so drush uses that URI for correct login/preview links.
+options:
+  uri: 'https://nib-drupal.ddev.site'

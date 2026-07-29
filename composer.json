@@ -1,0 +1,132 @@
+{
+    "name": "willjackson/pantheon-nextjs-demo-drupal",
+    "description": "Drupal 11 headless backend for the Pantheon Drupal + Next.js starter kit.",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "homepage": "https://www.drupal.org/project/drupal",
+    "support": {
+        "docs": "https://www.drupal.org/docs/user_guide/en/index.html",
+        "chat": "https://www.drupal.org/node/314178"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+    "require": {
+        "composer/installers": "^2.0",
+        "cweagans/composer-patches": "^1.7",
+        "drupal/consumers": "^1.24",
+        "drupal/core-composer-scaffold": "^11.0",
+        "drupal/core-project-message": "^11.0",
+        "drupal/core-recommended": "^11.0",
+        "drupal/decoupled_router": "^2.0",
+        "drupal/next": "^2.1",
+        "drupal/pathauto": "^1.15",
+        "drupal/simple_oauth": "^6.1",
+        "drush/drush": "^13.0",
+        "pantheon-systems-ps/pantheon_nextjs_commerce_demo": "^1.0",
+        "pantheon-systems-ps/pantheon_nextjs_edu_demo": "^1.0",
+        "pantheon-systems-ps/pantheon_nextjs_multi_demo": "^1.0",
+        "pantheon-systems/drupal-integrations": "^11"
+    },
+    "require-dev": {
+        "drupal/core-dev": "^11.0"
+    },
+    "conflict": {
+        "drupal/drupal": "*"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "cweagans/composer-patches": true,
+            "drupal/core-composer-scaffold": true,
+            "drupal/core-project-message": true,
+            "phpstan/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "php-http/discovery": true,
+            "tbachert/spi": true,
+            "symfony/runtime": true
+        },
+        "sort-packages": true,
+        "platform": {
+            "php": "8.3.11"
+        }
+    },
+    "extra": {
+        "drupal-scaffold": {
+            "locations": {
+                "web-root": "web/"
+            },
+            "allowed-packages": [
+                "pantheon-systems/drupal-integrations"
+            ],
+            "file-mapping": {
+                "[project-root]/.editorconfig": false,
+                "[project-root]/pantheon.upstream.yml": false,
+                "[project-root]/.gitattributes": false
+            }
+        },
+        "patches": {
+            "drupal/core": {
+                "#3523317: TypeError: Drupal\\Component\\Utility\\Html::escape(): Argument #1 ($text) must be of type string, null given": "https://www.drupal.org/files/issues/2025-07-11/fix-type-error-null-text-3523317-21.patch"
+            }
+        },
+        "installer-paths": {
+            "web/core": [
+                "type:drupal-core"
+            ],
+            "recipes/{$name}": [
+                "type:drupal-recipe"
+            ],
+            "web/libraries/{$name}": [
+                "type:drupal-library"
+            ],
+            "web/modules/contrib/{$name}": [
+                "type:drupal-module"
+            ],
+            "web/profiles/contrib/{$name}": [
+                "type:drupal-profile"
+            ],
+            "web/themes/contrib/{$name}": [
+                "type:drupal-theme"
+            ],
+            "drush/Commands/contrib/{$name}": [
+                "type:drupal-drush"
+            ],
+            "web/modules/custom/{$name}": [
+                "type:drupal-custom-module"
+            ],
+            "web/profiles/custom/{$name}": [
+                "type:drupal-custom-profile"
+            ],
+            "web/themes/custom/{$name}": [
+                "type:drupal-custom-theme"
+            ],
+            "web/private/scripts/quicksilver/{$name}/": [
+                "type:quicksilver-script"
+            ]
+        },
+        "drupal-core-project-message": {
+            "include-keys": ["homepage", "support"],
+            "post-create-project-cmd-message": [
+                "<bg=blue;fg=white>                                                         </>",
+                "<bg=blue;fg=white>  Congratulations, you've installed the Drupal codebase  </>",
+                "<bg=blue;fg=white>  from the drupal/recommended-project template!          </>",
+                "<bg=blue;fg=white>                                                         </>",
+                "",
+                "<bg=yellow;fg=black>Next steps</>:",
+                "  * Install the site: https://www.drupal.org/docs/installing-drupal",
+                "  * Read the user guide: https://www.drupal.org/docs/user_guide/en/index.html",
+                "  * Get support: https://www.drupal.org/support",
+                "  * Get involved with the Drupal community:",
+                "      https://www.drupal.org/getting-involved",
+                "  * Remove the plugin that prints this message:",
+                "      composer remove drupal/core-project-message"
+            ]
+        }
+    }
+}

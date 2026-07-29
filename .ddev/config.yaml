@@ -1,0 +1,23 @@
+name: nib-drupal
+type: drupal11
+docroot: web
+php_version: "8.3"
+webserver_type: nginx-fpm
+xdebug_enabled: false
+database:
+    type: mariadb
+    version: "10.11"
+use_dns_when_possible: true
+composer_version: "2"
+corepack_enable: false
+
+# Decoupled variant — Drupal-only backend.
+#
+# This is the SINGLE shared Drupal 11 content source for the Next.js front ends in
+# ../frontends/*. Unlike the old monolith, this project serves ONLY Drupal at the
+# primary URL (https://nib-drupal.ddev.site). The Next.js apps are their own DDEV
+# projects and reach this backend over the shared ddev-router.
+#
+# composer_root defaults to the project root (this dir), which holds composer.json.
+# Recipes are Composer packages installed into ./recipes and applied by
+# .ddev/commands/web/apply-recipes.

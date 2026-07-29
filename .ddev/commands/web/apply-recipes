@@ -1,0 +1,43 @@
+#!/bin/bash
+
+## Description: Install (via Composer) and apply the Next.js recipes, then configure draft preview
+## Usage: apply-recipes [recipe-name ...]
+## Example: "ddev apply-recipes" or "ddev apply-recipes pantheon_nextjs_edu_demo"
+
+set -e
+
+cd /var/www/html
+
+# Composer vendor namespace for the published recipe packages.
+VENDOR="pantheon-systems-ps"
+
+# Default set: the global backbone first, then each vertical. Vertical recipes also declare the
+# global recipe as a dependency, so re-application is idempotent.
+RECIPES=("$@")
+if [ ${#RECIPES[@]} -eq 0 ]; then
+  RECIPES=(pantheon_nextjs_multi_demo pantheon_nextjs_edu_demo pantheon_nextjs_commerce_demo)
+fi
+
+for recipe in "${RECIPES[@]}"; do
+  # Recipes are Composer packages (type: drupal-recipe) installed into recipes/<name>.
+  # Pull from Packagist if the package isn't installed yet.
+  if [ ! -d "recipes/${recipe}" ]; then
+    echo "Installing ${VENDOR}/${recipe} via Composer..."
+    composer require "${VENDOR}/${recipe}" --no-interaction
+  fi
+
+  echo "Applying recipe: ${recipe}"
+  # Absolute path: drush resolves relative recipe paths against the Drupal root (web/), not the
+  # project root, so point at the installed directory directly.
+  drush recipe "/var/www/html/recipes/${recipe}"
+done
+
+echo "Rebuilding caches..."
+drush cache:rebuild
+
+# Provision the OAuth pieces for draft preview that can't ship as config (keys, service user,
+# consumer secret). Idempotent, so it's safe on every recipe run.
+ddev_configure_preview="/mnt/ddev_config/commands/web/configure-preview"
+if [ -x "${ddev_configure_preview}" ]; then
+  bash "${ddev_configure_preview}"
+fi

@@ -1,0 +1,80 @@
+#!/bin/bash
+
+## Description: Provision the OAuth pieces for draft preview that can't live in config (keys, service user, consumer secret)
+## Usage: configure-preview
+## Example: "ddev configure-preview"
+
+# Draft preview (Next.js for Drupal, Simple OAuth generator) needs three things that carry
+# secrets and therefore can't ship as recipe config:
+#   1. An RSA key pair for signing OAuth tokens.
+#   2. A dedicated service user holding the `nextjs_preview` role (created by the recipe).
+#   3. The default consumer configured as confidential, with a known secret, the client_credentials
+#      grant, a non-zero token lifetime, and the `nextjs_preview` scope.
+# The front ends authenticate with client_id=default_consumer / client_secret=nextjs-drupal
+# (see each front end's .env.local) and request scope=nextjs_preview to read unpublished content.
+#
+# This command is idempotent — safe to re-run. It is invoked automatically by `ddev apply-recipes`.
+
+set -e
+
+cd /var/www/html
+
+KEY_DIR="/var/www/html/keys"
+CLIENT_SECRET="nextjs-drupal"
+SCOPE="nextjs_preview"
+
+echo "Configuring draft preview (OAuth)..."
+
+# 1. OAuth keys — generate once, then point Simple OAuth at them.
+if [ ! -f "${KEY_DIR}/private.key" ]; then
+  echo "  - generating OAuth keys in ${KEY_DIR}"
+  mkdir -p "${KEY_DIR}"
+  drush simple-oauth:generate-keys "${KEY_DIR}"
+else
+  echo "  - OAuth keys already present"
+fi
+drush config:set simple_oauth.settings public_key "${KEY_DIR}/public.key" --yes >/dev/null
+drush config:set simple_oauth.settings private_key "${KEY_DIR}/private.key" --yes >/dev/null
+
+# 2 + 3. Service user + consumer. Done in PHP so it stays idempotent and can read the recipe-provided
+# role/scope.
+drush php:eval '
+use Drupal\user\Entity\User;
+
+$client_secret = "'"${CLIENT_SECRET}"'";
+$scope = "'"${SCOPE}"'";
+
+// Service user holding the preview role (created by the recipe).
+$existing = \Drupal::entityTypeManager()->getStorage("user")->loadByProperties(["name" => "nextjs_preview"]);
+$user = $existing ? reset($existing) : NULL;
+if (!$user) {
+  $user = User::create(["name" => "nextjs_preview", "status" => 1]);
+  $user->addRole("nextjs_preview");
+  $user->save();
+  print "  - created service user nextjs_preview (uid=" . $user->id() . ")\n";
+}
+else {
+  if (!$user->hasRole("nextjs_preview")) { $user->addRole("nextjs_preview"); $user->save(); }
+  print "  - service user nextjs_preview present (uid=" . $user->id() . ")\n";
+}
+
+// Default consumer: confidential + secret + client_credentials + token lifetime + scope.
+$consumer = \Drupal::entityTypeManager()->getStorage("consumer")->load(1);
+if (!$consumer) {
+  $consumers = \Drupal::entityTypeManager()->getStorage("consumer")->loadByProperties(["client_id" => "default_consumer"]);
+  $consumer = $consumers ? reset($consumers) : NULL;
+}
+if (!$consumer) { print "  ! default consumer not found — is the consumers module installed?\n"; return; }
+
+$consumer->set("confidential", TRUE);
+$consumer->set("secret", $client_secret);
+$consumer->set("grant_types", ["client_credentials", "refresh_token", "authorization_code"]);
+if ($consumer->hasField("access_token_expiration")) { $consumer->set("access_token_expiration", 3600); }
+if ($consumer->hasField("refresh_token_expiration")) { $consumer->set("refresh_token_expiration", 1209600); }
+$consumer->set("user_id", $user->id());
+$consumer->set("scopes", [["scope_id" => $scope]]);
+$consumer->save();
+print "  - configured default_consumer (confidential, client_credentials, scope=" . $scope . ")\n";
+'
+
+echo "Draft preview configured."
