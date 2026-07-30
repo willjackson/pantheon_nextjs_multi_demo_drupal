@@ -121,7 +121,11 @@ class ComposerScripts {
     // Ignore everything in the 'recipes' directory, if it isn't already ignored.
     if (!file_exists('recipes/.gitignore')) {
       $io->write("<info>Adding .gitignore to recipes directory</info>");
-      mkdir('recipes');
+      // Guard the mkdir: recipes/ already exists when this upstream installs
+      // recipe packages into it (type: drupal-recipe), so mkdir() would fail.
+      if (!is_dir('recipes')) {
+        mkdir('recipes');
+      }
       file_put_contents('recipes/.gitignore', '*' . PHP_EOL . '!/.gitignore' . PHP_EOL);
     }
 
