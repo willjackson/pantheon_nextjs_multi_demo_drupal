@@ -2,7 +2,8 @@ api_version: 1
 web_docroot: true
 # See https://pantheon.io/docs/pantheon-yml/#enforce-https--hsts for valid values.
 enforce_https: transitional
-php_version: 8.2
+# Drupal 11 / core-recommended ^11 requires PHP >= 8.3 (see config.platform.php in composer.json).
+php_version: 8.3
 database:
   version: 10.4
 drush_version: 10
