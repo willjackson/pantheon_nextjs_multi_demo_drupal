@@ -14,8 +14,9 @@
 /console/
 /recipes/
 
-# Composer lock
-composer.lock
+# NOTE: composer.lock is intentionally NOT ignored. Pantheon's Integrated Composer
+# build generates the lock and runs `git add composer.lock` per site; ignoring it
+# breaks the build. The upstream repo itself simply does not commit a lock.
 
 # The drupal/core-composer-scaffold component writes .gitignore files to the
 # locations where it scaffolds files. Ignore them so Pantheon's Integrated
