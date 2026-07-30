@@ -13,3 +13,14 @@ protected_web_paths:
   - /sites/default/files/private/
   - /sites/default/files/config/
 
+# Quicksilver: one-time setup when a site is first created from this upstream.
+# deploy_product fires once, at site creation, on the dev environment — it is the
+# only workflow supported in pantheon.upstream.yml. The script installs Drupal and
+# applies the Next.js recipes so new sites boot ready to use.
+workflows:
+  deploy_product:
+    after:
+      - type: webphp
+        description: 'Install Drupal and apply the Next.js recipes'
+        script: scripts/quicksilver/deploy_product_install.php
+
