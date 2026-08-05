@@ -55,12 +55,12 @@ function pantheon_nextjs_multi_demo_install_tasks(array &$install_state): array 
 }
 
 /**
- * Install task: apply core's base recipes for a headless site.
+ * Install task: apply core's base recipes.
  *
- * Assembles the pieces of "standard" that a JSON:API backend actually needs —
- * admin/front themes, text formats + CKEditor, and the taxonomy "tags"
- * vocabulary (field_tags references taxonomy_term) — while deliberately avoiding
- * navigation/layout_builder/big_pipe.
+ * The module baseline (which mirrors the standard profile) is installed from the
+ * profile's info.yml install list. This task applies the config-bearing recipes
+ * that "standard" also uses: the admin/front themes, text formats + CKEditor, and
+ * the taxonomy "tags" vocabulary (field_tags references taxonomy_term).
  */
 function pantheon_nextjs_multi_demo_apply_base(array &$install_state): array {
   $web_root = \Drupal::root();

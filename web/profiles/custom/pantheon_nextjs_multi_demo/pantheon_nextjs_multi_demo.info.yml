@@ -11,22 +11,42 @@ distribution:
     theme: pantheon_nextjs_installer
     finish_url: '/admin/content'
 
-# Curated headless base. The core "standard" recipe is intentionally NOT used: it
-# installs navigation/layout_builder/big_pipe/help, which a JSON:API backend does
-# not need (and layout_builder breaks view-display config saves during install).
-# Text formats + editor, taxonomy, and the admin/front themes are added by core
-# recipes in the install task; the rest of the content model comes from the
-# vertical recipes.
+# Full "standard" profile baseline plus the modules this profile relies on. This
+# list mirrors core/profiles/standard/standard.info.yml so a site installed from
+# this profile matches a standard Drupal install, and then the vertical recipes
+# layer JSON:API / next / decoupled_router / OAuth on top. Text formats + editor
+# and the admin/front themes are still added by core recipes in the install task.
 install:
+  # --- core "standard" profile baseline (keep in sync with standard.info.yml) ---
   - node
-  - image
-  - file
-  - text
-  - options
-  - datetime
-  - path
-  - menu_ui
+  - block
+  - breakpoint
+  - ckeditor5
+  - config
+  - contextual
   - menu_link_content
+  - datetime
+  - block_content
+  - editor
+  - help
+  - image
+  - menu_ui
+  - options
+  - path
+  - page_cache
+  - dynamic_page_cache
+  - big_pipe
+  - taxonomy
+  - dblog
+  - navigation
+  - field_ui
+  - file
+  - views
+  - views_ui
+  - automated_cron
+  - announcements_feed
+  # --- additional base modules this profile relies on ---
+  - text
 
 # No bundled themes here so the installer does not inject Stark; the admin/front
 # themes are installed by core recipes during the install task.
